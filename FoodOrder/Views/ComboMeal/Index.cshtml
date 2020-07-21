@@ -1,0 +1,61 @@
+﻿@model IEnumerable<FoodOrder.Models.ViewModels.CombosViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ComboMeal.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ComboMeal.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ComboMeal.Price)
+            </th>
+            <th>
+                @Html.DisplayName("Product Items")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ComboMeal.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ComboMeal.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ComboMeal.Price)
+            </td>
+            <td>
+                @foreach (var productItem in item.ComboProducts)
+                {
+                    <ul>
+                        <li>
+                            @productItem.ProductItem.Name
+                        </li>
+                    </ul>
+                }
+            </td>
+            <td>
+                @*@Html.ActionLink("Edit", "Edit", new { id=item.ComboMeal.Id }) |*@
+                @Html.ActionLink("Details", "Details", new { id=item.ComboMeal.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id=item.ComboMeal.Id })
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
