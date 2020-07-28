@@ -1,0 +1,167 @@
+﻿@model FoodOrder.Models.CustomizeProductViewModel
+
+@{
+    ViewData["Title"] = "CustomizeProduct";
+}
+
+<div>
+    <h4>Customize - @Model.ProductItemViewModel.Name</h4>
+    @Html.HiddenFor(model => model.ProductItemViewModel.Id)
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProductItemViewModel.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProductItemViewModel.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProductItemViewModel.Price)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProductItemViewModel.Price)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayName("Product Category")
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProductItemViewModel.Product.Name)
+        </dd>
+    </dl>
+    <div class="row">
+        <div class="col-md-8">
+            <h5>Add something extra</h5>
+            <table id="tblProductItems" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Ingredients)
+                    {
+                        <tr>
+                            <td>
+                                @Html.HiddenFor(modelItem => item.Id)
+                            </td>
+                            <td>@item.Name</td>
+                            <td>@item.Price</td>
+                            <td>
+                                @Html.TextBoxFor(modelItem => Model.Quantity, new { @id = "txt" + item.Id, @class = "quantity", @maxlength = "4", required = "required", style = "width:50%" })
+                            </td>
+                            <td>@item.Price</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="form-group">
+                <input id="btnAddItem" type="submit" value="Add Item" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+
+@*show popup*@
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" />
+
+@*show data in datatable*@
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var table = $('#tblProductItems').DataTable();
+
+        $('#tblProductItems tbody').on('click', 'tr', function () {
+            $(this).toggleClass('selected');
+        });
+
+        $("body").on("click", "#btnAddItem", function () {
+            var ingredients = [];
+            var productItemId = $('#ProductItemViewModel_Id').val();
+            var isCheckQty = true;
+            var row = table.rows('.selected').data();
+            if (row.length > 0) {
+                for (var i = 0; i < row.length; i++) {
+                    var ingredient = {};
+                    ingredient.IngredientId = $(row[i][0]).attr('value');
+                 
+                    var id = "#" + $(row[i][3]).attr('id');
+                    ingredient.Quantity = $(id).val();
+
+
+                    if (ingredient.Quantity > 0) {
+                        ingredients.push(ingredient);
+                    }
+                    else {
+                        toastr.error('Menu item quantity should be greater than zero');
+                        var id = "#" + $(row[i][3]).attr('id');
+                        $(id).css({ "border": "1px solid red" });
+                        isCheckQty = false;
+                    }
+                }
+            }
+            else {
+                toastr.error('Menu item quantity should be greater than zero');
+                var id = "#" + row.find("input[type='text']").attr("id");
+                $(id).css({ "border": "1px solid red" });
+                isCheckQty = false;
+            }
+
+            if (isCheckQty) {
+                if (ingredients.length > 0) {
+                    var viewModel = {
+                        "ProductItemId": productItemId,
+                        "Ingredients": ingredients
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "/Home/CustomizeProduct",
+                        data: { selectCustomizeProductViewModel: viewModel },
+                        dataType: "json",
+                        success: function (r) {
+                            if (r > 0) {
+                                toastr.success(r + ' item(s) added to cart.');
+                            }
+                            else {
+                                toastr.error('Please select any menu item');
+                            }
+                        }
+                    });
+                }
+                else {
+                    toastr.error('Please select any menu item');
+                }
+            }
+        });
+
+        $('.quantity').keypress(function (e) {
+            if (e.which != 8  && (e.which < 48 || e.which > 57)) {
+                return false;
+            }
+        });
+
+        $('.quantity').on('keyup', function () {
+            var price = $(this).closest("tr").find("td:eq(2)").html().trim();
+            if (this.value > 0) {
+                $(this).css({ "border": "1px solid black" });
+                var total = price * this.value;
+                $(this).closest("tr").find("td:eq(4)").html(total);    // Use DOM traverse to get the next <input type="text" /> and put new total value to it
+                $(this).closest("tr").find("input[type='text']").attr("value", this.value);
+                
+            }
+            else {
+                $(this).closest("tr").find("td:eq(4)").html(price);
+                $(this).closest("tr").find("input[type='text']").attr("value", this.value);
+            }
+        });
+    });
+</script>
+

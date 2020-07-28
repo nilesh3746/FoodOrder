@@ -7,11 +7,13 @@ using FoodOrder.Models;
 using FoodOrder.Models.ViewModels;
 using FoodOrder.Persistence.Models;
 using FoodOrder.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodOrder.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ComboMealController : Controller
     {
         private readonly IComboService _comboService;
@@ -35,7 +37,7 @@ namespace FoodOrder.Controllers
                 var combos = _mapper.Map<List<CombosViewModel>>(await _comboService.GetAllComboMealAsync());
                 return View(combos);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return View();
             }
@@ -85,7 +87,7 @@ namespace FoodOrder.Controllers
                 };
                 return View(comboProductViewModel);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return View();
             }
@@ -142,12 +144,14 @@ namespace FoodOrder.Controllers
                     TempData["Message"] = "Combo Meal deleted successfully";
                     return RedirectToAction(nameof(Index));
                 }
-                return View();
+                var combos = _mapper.Map<CombosViewModel>(await _comboService.GetComboMealAsync(comboMealViewModel.Id));
+                return View(combos);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return View();
             }
         }
+
     }
 }

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace FoodOrder.Persistence.EntityFrameworkCore
 {
-    public class FoodDbContext : DbContext
+    public class FoodDbContext : IdentityDbContext<IdentityUser>
     {
         public FoodDbContext(DbContextOptions<FoodDbContext> options) : base(options)
         {
@@ -25,6 +25,7 @@ namespace FoodOrder.Persistence.EntityFrameworkCore
         public DbSet<CustomizeProduct> CustomizeProducts { get; set; }
         public DbSet<CustomizeProductIngredients> CustomizeProductIngredients { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
+        public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,7 +48,7 @@ namespace FoodOrder.Persistence.EntityFrameworkCore
                 );
 
             modelBuilder.Entity<Ingredient>().HasData(
-                            new Ingredient() { Id = 1, Name = "PizzaToast", Description = null, Price = 10 },
+                            new Ingredient() { Id = 1, Name = "PizzaBase", Description = null, Price = 10 },
                             new Ingredient() { Id = 2, Name = "Bread", Description = null, Price = 10 },
                             new Ingredient() { Id = 3, Name = "Topping", Description = null, Price = 20 },
                             new Ingredient() { Id = 4, Name = "Sauce", Description = null, Price = 10 },

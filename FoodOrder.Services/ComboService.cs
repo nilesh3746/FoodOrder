@@ -20,6 +20,11 @@ namespace FoodOrder.Services
             _comboProductRepository = comboProductRepository;
         }
 
+        public async Task<ComboMeal> GetAsync(int id)
+        {
+            return await _comboRepository.GetAsync(id);
+        }
+
         public async Task<ComboMeal> AddComboMealAsync(ComboMeal comboMeal)
         {
             return await _comboRepository.AddAsync(comboMeal);
@@ -66,6 +71,11 @@ namespace FoodOrder.Services
                 ComboMeal = await _comboRepository.GetAsync(id),
                 ComboProducts = await _comboProductRepository.GetAllByIdAsync(id)
             };
+        }
+
+        public async Task<List<ComboMeal>> GetAllAsync()
+        {
+            return await _comboRepository.GetAllAsync();
         }
     }
 }

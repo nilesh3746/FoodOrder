@@ -19,6 +19,9 @@ namespace FoodOrder.AutoMapper
             CreateMap<ComboMeal, ComboMealViewModel>().ReverseMap();
             CreateMap<ComboProduct, ComboProductViewModel>().ReverseMap();
             CreateMap<Combos, CombosViewModel>().ReverseMap();
+            CreateMap<ShoppingCart, ShoppingCartViewModel>().ReverseMap();
+            CreateMap<ShoppingCartItem, ShoppingCartItemViewModel>().ReverseMap();
+            CreateMap<Customer, OrderViewModel>().ReverseMap();
         }
     }
 }

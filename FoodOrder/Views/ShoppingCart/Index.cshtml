@@ -1,0 +1,73 @@
+﻿@model FoodOrder.Models.ViewModels.ShoppingViewModel
+<div>
+    <h2>Your shopping cart</h2><br/>
+    <h4>Here are the items in your shopping cart.</h4>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th class="text-right">Price</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Subtotal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ShoppingCart.ShoppingCartItems)
+            {
+            <tr>
+                @if (item.ProductItem != null)
+                {
+                    <td class="text-left">@item.ProductItem.Name</td>
+                    <td class="text-right">@item.ProductItem.Price.ToString("c")</td>
+                    <td class="text-right">@item.Quantity</td>
+                    <td class="text-right">
+                        @((item.Quantity * item.ProductItem.Price).ToString("c"))
+                    </td>
+                }
+                @if (item.ComboMeal != null)
+                {
+                    <td class="text-left">@item.ComboMeal.Name</td>
+                    <td class="text-right">@item.ComboMeal.Price.ToString("c")</td>
+                    <td class="text-right">@item.Quantity</td>
+                    <td class="text-right">
+                        @((item.Quantity * item.ComboMeal.Price).ToString("c"))
+                    </td>
+                }
+                @if (item.CustomizeProduct != null)
+                {
+                    <td class="text-left">@item.CustomizeProduct.Name</td>
+                    <td class="text-right">@item.CustomizeProduct.Price.ToString("c")</td>
+                    <td class="text-right">@item.Quantity</td>
+                    <td class="text-right">
+                        @((item.Quantity * item.CustomizeProduct.Price).ToString("c"))
+                    </td>
+                }
+                <td class="text-center">
+                    <a class="text-danger remove" asp-controller="ShoppingCart" asp-action="RemoveFromShoppingCart" asp-route-id="@item.ShoppingCartItemId">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        Remove
+                    </a>
+                </td>
+            </tr>                  
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-right">Total:</td>
+                <td class="text-right">
+                    @Model.ShoppingCartTotal.ToString("c")
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    @if (Model.ShoppingCart.ShoppingCartItems.Count > 0)
+    {
+    <div class="text-right">
+        <div class="btn-group ">
+            <a class="btn btn-success" asp-controller="Order" asp-action="Index">Place Order</a>
+        </div>
+    </div>
+    }
+</div>

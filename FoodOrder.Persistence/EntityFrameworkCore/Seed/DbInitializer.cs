@@ -14,17 +14,12 @@ namespace FoodOrder.Persistence.EntityFrameworkCore.Seed
         {
             context.Database.EnsureCreated();
 
-            //var roleManager = service.GetRequiredService<RoleManager<IdentityRole>>();
-            //var userManager = service.GetRequiredService<UserManager<IdentityUser>>();
+            var roleManager = service.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = service.GetRequiredService<UserManager<IdentityUser>>();
 
-            if (context.ProductItems.Any())
-            {
-                return;
-            }
-
-            ClearDatabase(context);
-            //CreateAdminRole(context, roleManager, userManager);
-            SeedDatabase(context);
+            //ClearDatabase(context);
+            CreateAdminRole(context, roleManager, userManager);
+            //SeedDatabase(context);
         }
 
         private static void CreateAdminRole(FoodDbContext context, RoleManager<IdentityRole> _roleManager, UserManager<IdentityUser> _userManager)
@@ -49,17 +44,19 @@ namespace FoodOrder.Persistence.EntityFrameworkCore.Seed
 
             var user = new IdentityUser()
             {
-                UserName = "admin",
+                UserName = "admin@default.com",
                 Email = "admin@default.com"
             };
 
-            string adminPassword = "Password123";
+            string adminPassword = "Password@123";
             var userResult = _userManager.CreateAsync(user, adminPassword).Result;
 
             if (userResult.Succeeded)
             {
                 _userManager.AddToRoleAsync(user, "Admin").Wait();
             }
+
+            context.SaveChanges();
         }
 
         private static void SeedDatabase(FoodDbContext _context)

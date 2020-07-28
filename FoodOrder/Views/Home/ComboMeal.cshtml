@@ -1,0 +1,158 @@
+﻿@model IEnumerable<FoodOrder.Models.SelectComboProductViewModel>
+
+@{
+    ViewData["Title"] = "Combo Meal";
+}
+
+<h4>Combo Meal</h4>
+<div class="row">
+    <div class="col-md-12">
+        <div>
+            <table id="tblProductItems" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Item</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var productItem in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.HiddenFor(modelItem => productItem.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => productItem.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => productItem.Price)
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(modelItem => productItem.Quantity, new { @id = "txt" + productItem.Id, @class = "quantity", @maxlength = "4", required = "required", style = "width:50%" })
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => productItem.Price, new { @class = "total" })
+                            </td>
+                            <td>
+                                @Html.ActionLink("Details", "Details", "ProductItem", new { id = productItem.Id })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>Item</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="form-group">
+            <input id="btnAddItem" type="submit" value="Add Item" class="btn btn-primary" />
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+
+@*show popup*@
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" />
+
+@*show data in datatable*@
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var table = $('#tblProductItems').DataTable();
+
+        $('#tblProductItems tbody').on('click', 'tr', function () {
+            $(this).toggleClass('selected');
+        });
+
+        $("body").on("click", "#btnAddItem", function () {
+            var productItems = [];
+            var isCheckQty = true;
+            var row = table.rows('.selected').data();
+            if (row.length > 0) {
+                for (var i = 0; i < row.length; i++) {
+                    var productItem = {};
+                    productItem.Id = $(row[i][0]).attr('value');
+                    productItem.Name = row[i][1];
+                    productItem.Price = row[i][2];
+                  
+                    var id = "#" + $(row[i][3]).attr('id');
+                    productItem.Quantity = $(id).val();
+
+                    if (productItem.Quantity > 0) {
+                        productItems.push(productItem);
+                    }
+                    else {
+                        toastr.error('Menu item quantity should be greater than zero');
+                        var id = "#" + $(row[i][3]).attr('id');
+                        $(id).css({ "border": "1px solid red" });
+                        isCheckQty = false;
+                    }
+                }
+            }
+           
+
+            if (isCheckQty) {
+                if (productItems.length > 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Home/ComboMeal",
+                        data: { selectComboProductViewModels: productItems },
+                        dataType: "json",
+                        success: function (r) {
+                            if (r > 0) {
+                                toastr.success(r + ' item(s) added to cart.');
+                            }
+                            else {
+                                toastr.error('Please select any menu item');
+                            }
+                        }
+                    });
+                }
+                else {
+                    toastr.error('Please select any menu item');
+                }
+            }
+        });
+
+
+        $('.quantity').keypress(function (e) {
+            if (e.which != 8 && (e.which < 48 || e.which > 57)) {
+                return false;
+            }
+        });
+
+        $('.quantity').on('keyup', function () {
+            var price = $(this).closest("tr").find("td:eq(2)").html().trim();
+            if (this.value > 0) {
+                $(this).css({ "border": "1px solid black" });
+                var total = price * this.value;
+                $(this).closest("tr").find("td:eq(4)").html(total);    // Use DOM traverse to get the next <input type="text" /> and put new total value to it
+                $(this).closest("tr").find("input[type='text']").attr("value", this.value);
+
+            }
+            else {
+                $(this).closest("tr").find("td:eq(4)").html(price);
+                $(this).closest("tr").find("input[type='text']").attr("value", this.value);
+            }
+        });
+
+
+    
+    });
+</script>

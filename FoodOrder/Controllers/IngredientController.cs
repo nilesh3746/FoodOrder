@@ -6,11 +6,13 @@ using AutoMapper;
 using FoodOrder.Models;
 using FoodOrder.Persistence.Models;
 using FoodOrder.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodOrder.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class IngredientController : Controller
     {
         private readonly IIngredientService _ingredientService;

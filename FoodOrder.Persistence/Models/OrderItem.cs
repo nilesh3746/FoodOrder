@@ -11,8 +11,6 @@ namespace FoodOrder.Persistence.Models
         [Key]
         public int Id { get; set; }
 
-        public double UnitPrice { get; set; }
-
         public int Quantity { get; set; }
 
         public int OrderId { get; set; }
